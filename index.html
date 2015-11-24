@@ -115,13 +115,13 @@
 			attributionControl: false,
 			minZoom: 2,
 			maxZoom: 5,
-			maxBounds: [[1,1],[255,255]],
+			maxBounds: [[0,0],[256,256]],
 			crs: L.CRS.Simple
 		}).setView([128, 128], 2);
 		L.control.zoom({position: "topleft"}).addTo(map);
 		L.imageOverlay(
 			"img/nanomap_z1.png",
-			[[1,1],[255,255]]
+			[[0,0],[256,256]]
 		).addTo(map);
 		var heatLayer = L.heatLayer([], {
 			radius: 10
@@ -146,7 +146,7 @@
 					for(var i = 0; i < death.length; i++) {
 						var d = death[i];
 						if(filter(d))
-							latlngs.push([d[1][1] - 0.5, d[1][0] - 0.5, 1]);
+							latlngs.push([d[1][1] - 0.75, d[1][0] - 0.75, 1]);
 					}
 					heatLayer.setLatLngs(latlngs);
 					heatLayer.setOptions({max: 0.0002 * latlngs.length});
