@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en/vox">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>Rampant Brand Intelligence Dispatching System</title>
+	<link rel="icon" type="image/png" href="img/favicon.png"/>
+	<link href="css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet"/>
+	<link href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" rel="stylesheet"/>
+	<link href="css/map.css" rel="stylesheet"/>
+</head>
+<body role="document">
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Death Map</a>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar">
+				<ul class="nav navbar-nav">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Filters <span class="caret"/></a>
+						<ul class="dropdown-menu multi-level" role="menu">
+							<li class="active"><a id="allDeaths" href="#">All Deaths <span class="badge">?</span></a></li>
+							<li class="dropdown-submenu">
+								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Location</a>
+								<ul class="dropdown-menu" role="menu">
+									<li>
+										<ul id="locList" class="dropdown-menu scroll-menu"></ul>
+									</li>
+								</ul>
+							</li>
+							<li class="dropdown-submenu">
+								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Year</a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="#" id="f-2013">2013 <span class="badge">?</span></a></li>
+									<li><a href="#" id="f-2014">2014 <span class="badge">?</span></a></li>
+									<li><a href="#" id="f-2015">2015 <span class="badge">?</span></a></li>
+								</ul>
+							</li>
+							<li class="dropdown-submenu">
+								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Name</a>
+								<ul class="dropdown-menu" role="menu">
+									<li id="searchBox" class="input-group" style="margin: 0px 4px;">
+										<input type="text" class="form-control" placeholder="Skrek" id="searchText"/>
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="submit" id="searchBtn"><span class="glyphicon glyphicon-search"/></button>
+										</span>
+									</li>
+								</ul>
+							</li>
+							<li class="dropdown-submenu">
+								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Gender</a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="#" id="f-male">Male <span class="badge">?</span></a></li>
+									<li><a href="#" id="f-female">Female <span class="badge">?</span></a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li id="welcomeBtn" class="active"><a role="button" data-toggle="collapse" data-target="#welcome">Help</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	
+	<div id="map"></div>
+	
+	<div class="container" role="main">
+		<div class="jumbotron collapse in" id="welcome">
+			<h1>Hihi agains.</h1>
+			<h2><img alt="hihi" src="img/hihi.png"/>See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h2>
+			<p>
+				Choose filters at top for specifics.
+				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>.
+			</p>
+			<p><button type="button" class="btn btn-primary btn-lg" data-toggle="collapse" data-target="#welcome" aria-expanded="true" aria-controls="welcome">Yaya</button></p>
+		</div>
+	</div>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="js/leaflet-heat.js"></script>
+	<script>
+		// google analytics
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-70465958-1', 'auto');
+		ga('send', 'pageview');
+	</script>
+	<script>
+		// general ui
+		var updateHelp = function() {
+			$("#welcomeBtn").toggleClass("active", !$("#welcome").hasClass("in"));
+		};
+		$("#welcome")
+			.on("show.bs.collapse", updateHelp)
+			.on("hide.bs.collapse", updateHelp);
+		
+		// initialize map
+		var map = L.map("map", {
+			zoomControl: false,
+			attributionControl: false,
+			minZoom: 2,
+			maxZoom: 5,
+			maxBounds: [[1,1],[255,255]],
+			crs: L.CRS.Simple
+		}).setView([128, 128], 2);
+		L.control.zoom({position: "topleft"}).addTo(map);
+		L.imageOverlay(
+			"img/nanomap_z1.png",
+			[[1,1],[255,255]]
+		).addTo(map);
+		var heatLayer = L.heatLayer([], {
+			radius: 10
+		}).addTo(map);
+		
+		// data columns are pod,coord,tod,name,gender
+		// initialize filters & load data
+		$.getJSON("death.json", function(death) {
+			$.getJSON("areas.json", function(areas) {
+				// fn to handle filter changing / updating
+				var updateMap = function(filter, btn, cat) {
+					// update selections
+					$(".dropdown-menu>li").removeClass("active");
+					if(btn) {
+						$(btn).parent().addClass("active");
+						if(cat)
+							$(btn).parents(".dropdown-submenu").addClass("active");
+					}
+					
+					// update latlng
+					var latlngs = [];
+					for(var i = 0; i < death.length; i++) {
+						var d = death[i];
+						if(filter(d))
+							latlngs.push([d[1][1] - 0.5, d[1][0] - 0.5, 1]);
+					}
+					heatLayer.setLatLngs(latlngs);
+					heatLayer.setOptions({max: 0.0002 * latlngs.length});
+				}
+				
+				///////////////
+				// Setup all badges and filter choices
+				$("#allDeaths>.badge").text($(death).size());
+				
+				// update areas
+				var usedAreas = {};
+				$.each(areas.sort(), function(ai, aname) {
+					if(!usedAreas[aname]) {
+						var numInsts = 0;
+						for(var i = 0; i < death.length; i++) {
+							if(death[i][0] == aname)
+								numInsts++;
+						}
+						
+						if(numInsts > 0) {
+							$("#locList").append('<li><a href="#" id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
+							$("#f-loc-"+ai).on("click", function() {
+								updateMap(function(d) { return d[0] == aname }, "#f-loc-"+ai, true);
+							});
+						}
+						usedAreas[aname] = true;
+					}
+				});
+				// update genders & years
+				var numMales = 0
+				var numFemales = 0
+				var numYears = [0, 0, 0];
+				for(var i = 0; i < death.length; i++) {
+					numYears[death[i][2] - 2013]++;
+					
+					if(death[i][4] == 0)
+						numMales++;
+					else
+						numFemales++;
+				}
+				$("#f-male>.badge").text(numMales);
+				$("#f-female>.badge").text(numFemales);
+				for(var y = 0; y < numYears.length; y++) {
+					$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
+				}
+				
+				////////////////////
+				// init map
+				updateMap(function() { return true; }, "#allDeaths");
+				
+				// set functionality on maps
+				$("#allDeaths").on("click", function() {
+					updateMap(function() { return true; }, "#allDeaths");
+				});
+				
+				$("#f-male").on("click", function() {
+					updateMap(function(d) { return d[4] == 0; }, "#f-male", true);
+				});
+				$("#f-female").on("click", function() {
+					updateMap(function(d) { return d[4] == 1; }, "#f-female", true);
+				});
+				var searchFn = function() {
+					var name = $("#searchText").val().toLowerCase();
+					updateMap(function(d) { return d[3].toLowerCase().indexOf(name) > -1; }, "#searchBox", true);
+				};
+				$("#searchBtn").on("click", searchFn);
+				$("#searchText").keypress(function(event) {
+					if(event.keyCode == 13)
+						searchFn();
+				});
+				$("#f-2013").on("click", function() {
+					updateMap(function(d) { return d[2] == 2013; }, "#f-2013", true);
+				});
+				$("#f-2014").on("click", function() {
+					updateMap(function(d) { return d[2] == 2014; }, "#f-2014", true);
+				});
+				$("#f-2015").on("click", function() {
+					updateMap(function(d) { return d[2] == 2015; }, "#f-2015", true);
+				});
+			})
+		});
+	</script>
+</body>
+</html>
