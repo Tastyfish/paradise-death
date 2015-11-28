@@ -29,7 +29,7 @@
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Filters <span class="caret"/></a>
 						<ul class="dropdown-menu multi-level" role="menu">
-							<li class="active"><a id="f-all" href="#">All Deaths <span class="badge">?</span></a></li>
+							<li class="active"><a id="f-all">All Deaths <span class="badge">?</span></a></li>
 							<li class="dropdown-submenu">
 								<a role="button" aria-haspopup="true" aria-expanded="false">Location</a>
 								<ul class="dropdown-menu" role="menu">
@@ -203,7 +203,7 @@
 				////////////////////				
 				// set functionality on maps
 				$("#f-all").on("click", function() {
-					updateMap(function() { return true; }, "#f-all");
+					updateMap(function() { return true; }, "#f-all", false, "");
 				});
 				
 				$("#f-male").on("click", function() {
@@ -242,7 +242,7 @@
 							searchFn();
 						}
 					} else {
-						updateMap(function() { return true; }, "#f-all");
+						updateMap(function() { return true; }, "#f-all", false, "");
 					}
 				}
 				// load from url initially
