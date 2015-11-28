@@ -22,16 +22,16 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">Death Map</a>
+				<a class="navbar-brand">Death Map</a>
 			</div>
 			<div class="navbar-collapse collapse" id="navbar">
 				<ul class="nav navbar-nav">
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Filters <span class="caret"/></a>
 						<ul class="dropdown-menu multi-level" role="menu">
-							<li class="active"><a id="allDeaths" href="#">All Deaths <span class="badge">?</span></a></li>
+							<li class="active"><a id="f-all" href="#">All Deaths <span class="badge">?</span></a></li>
 							<li class="dropdown-submenu">
-								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Location</a>
+								<a role="button" aria-haspopup="true" aria-expanded="false">Location</a>
 								<ul class="dropdown-menu" role="menu">
 									<li>
 										<ul id="locList" class="dropdown-menu scroll-menu"></ul>
@@ -39,15 +39,15 @@
 								</ul>
 							</li>
 							<li class="dropdown-submenu">
-								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Year</a>
+								<a role="button" aria-haspopup="true" aria-expanded="false">Year</a>
 								<ul class="dropdown-menu" role="menu">
-									<li><a href="#" id="f-2013">2013 <span class="badge">?</span></a></li>
-									<li><a href="#" id="f-2014">2014 <span class="badge">?</span></a></li>
-									<li><a href="#" id="f-2015">2015 <span class="badge">?</span></a></li>
+									<li><a id="f-2013">2013 <span class="badge">?</span></a></li>
+									<li><a id="f-2014">2014 <span class="badge">?</span></a></li>
+									<li><a id="f-2015">2015 <span class="badge">?</span></a></li>
 								</ul>
 							</li>
 							<li class="dropdown-submenu">
-								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Name</a>
+								<a role="button" aria-haspopup="true" aria-expanded="false">Name</a>
 								<ul class="dropdown-menu" role="menu">
 									<li id="searchBox" class="input-group" style="margin: 0px 4px;">
 										<input type="text" class="form-control" placeholder="Skrek" id="searchText"/>
@@ -58,10 +58,10 @@
 								</ul>
 							</li>
 							<li class="dropdown-submenu">
-								<a href="#" role="button" aria-haspopup="true" aria-expanded="false">Gender</a>
+								<a role="button" aria-haspopup="true" aria-expanded="false">Gender</a>
 								<ul class="dropdown-menu" role="menu">
-									<li><a href="#" id="f-male">Male <span class="badge">?</span></a></li>
-									<li><a href="#" id="f-female">Female <span class="badge">?</span></a></li>
+									<li><a id="f-male">Male <span class="badge">?</span></a></li>
+									<li><a id="f-female">Female <span class="badge">?</span></a></li>
 								</ul>
 							</li>
 						</ul>
@@ -132,13 +132,20 @@
 		$.getJSON("death.json", function(death) {
 			$.getJSON("areas.json", function(areas) {
 				// fn to handle filter changing / updating
-				var updateMap = function(filter, btn, cat) {
+				var updateMap = function(filter, btn, cat, hash) {
 					// update selections
 					$(".dropdown-menu>li").removeClass("active");
 					if(btn) {
 						$(btn).parent().addClass("active");
 						if(cat)
 							$(btn).parents(".dropdown-submenu").addClass("active");
+					}
+					
+					// push url state
+					if(hash == null)
+						hash = btn;
+					if(hash != window.location.hash) {
+						window.history.pushState(hash, hash, window.location.pathname + hash);
 					}
 					
 					// update latlng
@@ -154,7 +161,7 @@
 				
 				///////////////
 				// Setup all badges and filter choices
-				$("#allDeaths>.badge").text($(death).size());
+				$("#f-all>.badge").text($(death).size());
 				
 				// update areas
 				var usedAreas = {};
@@ -167,7 +174,7 @@
 						}
 						
 						if(numInsts > 0) {
-							$("#locList").append('<li><a href="#" id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
+							$("#locList").append('<li><a id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
 							$("#f-loc-"+ai).on("click", function() {
 								updateMap(function(d) { return d[0] == aname }, "#f-loc-"+ai, true);
 							});
@@ -193,13 +200,10 @@
 					$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
 				}
 				
-				////////////////////
-				// init map
-				updateMap(function() { return true; }, "#allDeaths");
-				
+				////////////////////				
 				// set functionality on maps
-				$("#allDeaths").on("click", function() {
-					updateMap(function() { return true; }, "#allDeaths");
+				$("#f-all").on("click", function() {
+					updateMap(function() { return true; }, "#f-all");
 				});
 				
 				$("#f-male").on("click", function() {
@@ -210,7 +214,7 @@
 				});
 				var searchFn = function() {
 					var name = $("#searchText").val().toLowerCase();
-					updateMap(function(d) { return d[3].toLowerCase().indexOf(name) > -1; }, "#searchBox", true);
+					updateMap(function(d) { return d[3].toLowerCase().indexOf(name) > -1; }, "#searchBox", true, "#n="+name);
 				};
 				$("#searchBtn").on("click", searchFn);
 				$("#searchText").keypress(function(event) {
@@ -225,6 +229,27 @@
 				});
 				$("#f-2015").on("click", function() {
 					updateMap(function(d) { return d[2] == 2015; }, "#f-2015", true);
+				});
+				
+				///////////////
+				// filter as requested
+				var setFilter = function(hash) {
+					if(hash != null && hash.length > 3) {
+						if(hash.substr(0, 3) == "#f-") {
+							$(hash).triggerHandler("click");
+						} else if(hash.substr(0, 3) == "#n=") {
+							$("#searchText").val(hash.substr(3).toLowerCase());
+							searchFn();
+						}
+					} else {
+						updateMap(function() { return true; }, "#f-all");
+					}
+				}
+				// load from url initially
+				setFilter(window.location.hash);
+				// and also from pops
+				$(window).bind("popstate", function(event) {
+					setFilter(event.originalEvent.state);
 				});
 			})
 		});

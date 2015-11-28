@@ -1,3 +1,9 @@
+.dropdown-menu>li>a {
+	cursor: pointer;
+}
+a.navbar-brand {
+	cursor: default;
+}
 #map {
 	height: 100%;
 	min-height: 100%;
