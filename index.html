@@ -90,6 +90,7 @@
 	<script src="js/bootstrap.min.js"></script>
 	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 	<script src="js/leaflet-heat.js"></script>
+	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script>
 		// google analytics
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -108,6 +109,12 @@
 		$("#welcome")
 			.on("show.bs.collapse", updateHelp)
 			.on("hide.bs.collapse", updateHelp);
+		// hide welcome if cookie set
+		if(Cookies.get("visited") == 1) {
+			$("#welcome").collapse();
+		}
+		// update cookie
+		Cookies.set("visited", 1, {expires: 7, path: ""});
 		
 		// initialize map
 		var map = L.map("map", {
