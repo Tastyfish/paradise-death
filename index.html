@@ -238,7 +238,7 @@
 						if(hash.substr(0, 3) == "#f-") {
 							$(hash).triggerHandler("click");
 						} else if(hash.substr(0, 3) == "#n=") {
-							$("#searchText").val(hash.substr(3).toLowerCase());
+							$("#searchText").val(decodeURI(hash.substr(3)).toLowerCase());
 							searchFn();
 						}
 					} else {
