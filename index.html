@@ -6,10 +6,10 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
 	<title>NSS Cyberiad Death Map</title>
-	<link rel="icon" type="image/png" href="img/favicon.png"/>
+	<link rel="icon" type="image/png" href="images/favicon.png"/>
 	<link href="css/bootstrap.min.css" rel="stylesheet"/>
 	<link href="css/bootstrap-theme.min.css" rel="stylesheet"/>
-	<link href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" rel="stylesheet"/>
+	<link href="css/leaflet.css" rel="stylesheet"/>
 	<link href="css/map.css" rel="stylesheet"/>
 </head>
 <body role="document">
@@ -77,7 +77,7 @@
 	<div class="container" role="main">
 		<div class="jumbotron collapse in" id="welcome">
 			<h1>Hihi agains.</h1>
-			<h2><img alt="hihi" src="img/hihi.png"/>See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h2>
+			<h2><img alt="hihi" src="images/hihi.png"/>See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h2>
 			<p>
 				Choose filters at top for specifics.
 				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>.
@@ -88,7 +88,7 @@
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
-	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet-heat.js"></script>
 	<script src="js/js.cookie-2.0.4.min.js"></script>
 	<script>
@@ -126,10 +126,12 @@
 			crs: L.CRS.Simple
 		}).setView([128, 128], 2);
 		L.control.zoom({position: "topleft"}).addTo(map);
-		L.imageOverlay(
-			"img/nanomap_z1.png",
-			[[0,0],[256,256]]
-		).addTo(map);
+		L.tileLayer("tiles/{z}/{x}/{y}.png", {
+			minZoom: 2,
+			maxZoom: 5,
+			continuousWorld: true,
+			tms: true
+		}).addTo(map);
 		var heatLayer = L.heatLayer([], {
 			radius: 10
 		}).addTo(map);
@@ -160,7 +162,7 @@
 					for(var i = 0; i < death.length; i++) {
 						var d = death[i];
 						if(filter(d))
-							latlngs.push([d[1][1] - 0.75, d[1][0] - 0.75, 1]);
+							latlngs.push([d[1][1] - 0.5, d[1][0] - 0.5, 1]);
 					}
 					heatLayer.setLatLngs(latlngs);
 					heatLayer.setOptions({max: 0.0002 * latlngs.length});
