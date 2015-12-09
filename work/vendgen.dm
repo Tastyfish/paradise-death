@@ -90,6 +90,7 @@ client/verb/genmap()
 			fcopy(new/icon(I, "", SOUTH, 1, 0),
 				"./tiles/5/[round(x/8)]/[round(y/8)].png")
 
+// stolen from device/camera
 client/proc/map_get_icon(list/turfs, turf/center)
 	var/icon/res = icon('icons/effects/96x96.dmi', "")
 	res.Scale(8*32, 8*32)
