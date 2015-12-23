@@ -75,7 +75,7 @@
 	<div id="map"></div>
 	
 	<div class="container" role="main">
-		<div class="jumbotron collapse in" id="welcome">
+		<div class="jumbotron collapse in" id="welcome" role="dialog">
 			<h1>Hihi agains.</h1>
 			<h2><img alt="hihi" src="images/hihi.png"/>See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h2>
 			<p>
@@ -83,6 +83,23 @@
 				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>.
 			</p>
 			<p><button type="button" class="btn btn-primary btn-lg" data-toggle="collapse" data-target="#welcome" aria-expanded="true" aria-controls="welcome">Yaya</button></p>
+		</div>
+		
+		<div class="modal fade" id="loadBox" tabindex="-1" role="dialog" aria-labelledby="loadLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="loadLabel">Loading Deaths...</h4>
+					</div>
+					<div class="modal-body">
+						<div class="progress" style="margin:0">
+							<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+								<span class="sr-only">Loading...</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	
@@ -138,7 +155,12 @@
 		
 		// data columns are pod,coord,tod,name,gender
 		// initialize filters & load data
+		$("#loadBox").modal({
+			keyboard: false,
+			backdrop: 'static'
+		});
 		$.getJSON("death.json", function(death) {
+			$("#loadLabel").text("Loading Categories...");
 			$.getJSON("areas.json", function(areas) {
 				// fn to handle filter changing / updating
 				var updateMap = function(filter, btn, cat, hash) {
@@ -208,6 +230,8 @@
 				for(var y = 0; y < numYears.length; y++) {
 					$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
 				}
+				
+				$("#loadBox").modal("hide");
 				
 				////////////////////				
 				// set functionality on maps
