@@ -28,6 +28,25 @@ body .container {
 .leaflet-top .leaflet-control {
 	margin-top: 128px;
 }
+.leaflet-bar {
+	box-shadow: none;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.leaflet-bar a, .leaflet-bar a:hover {
+	color: #fff;
+	background-color: #222;
+	border-bottom: 1px solid #282828;
+}
+.leaflet-bar a:last {
+	border-bottom: none;
+}
+.leaflet-bar a:hover {
+	background-color: #2a9fd6;
+}
+.leaflet-bar a.leaflet-disabled {
+	background-color: #222;
+	color: #888;
+}
 ul.scroll-menu {
 	position: relative;
 	display: inherit !important;
@@ -70,9 +89,9 @@ ul.scroll-menu {
 	left: 100%;
 	margin-top: -6px;
 	margin-left: -1px;
-	-webkit-border-radius: 0 6px 6px 6px;
-	-moz-border-radius: 0 6px 6px;
-	border-radius: 0 6px 6px 6px;
+	-webkit-border-radius: 0 4px 4px 4px;
+	-moz-border-radius: 0 4px 4px;
+	border-radius: 0 4px 4px 4px;
 }
 
 .dropdown-submenu:hover>.dropdown-menu {
@@ -88,13 +107,9 @@ ul.scroll-menu {
 	border-color: transparent;
 	border-style: solid;
 	border-width: 5px 0 5px 5px;
-	border-left-color: #ccc;
+	border-left-color: #fff;
 	margin-top: 5px;
 	margin-right: -10px;
-}
-
-.dropdown-submenu:hover>a:after {
-	border-left-color: #000;
 }
 
 .dropdown-submenu.pull-left {
@@ -104,7 +119,7 @@ ul.scroll-menu {
 .dropdown-submenu.pull-left>.dropdown-menu {
 	left: -100%;
 	margin-left: 10px;
-	-webkit-border-radius: 6px 0 6px 6px;
-	-moz-border-radius: 6px 0 6px 6px;
-	border-radius: 6px 0 6px 6px;
+	-webkit-border-radius: 4px 0 4px 4px;
+	-moz-border-radius: 4px 0 4px 4px;
+	border-radius: 4px 0 4px 4px;
 }
