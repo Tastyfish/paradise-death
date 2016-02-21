@@ -63,6 +63,14 @@
 									<li><a id="f-female">Female <span class="badge">?</span></a></li>
 								</ul>
 							</li>
+							<li class="dropdown-submenu">
+								<a role="button" aria-haspopup="true" aria-expanded="false">Job</a>
+								<ul class="dropdown-menu" role="menu">
+									<li>
+										<ul id="jobList" class="dropdown-menu scroll-menu"></ul>
+									</li>
+								</ul>
+							</li>
 						</ul>
 					</li>
 					<li id="welcomeBtn" class="active"><a role="button" data-toggle="collapse" data-target="#welcome">Help</a></li>
@@ -79,7 +87,7 @@
 			<h3><img alt="hihi" src="images/hihi.png"/>&nbsp;See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h3>
 			<p>
 				Choose filters at top for specifics.
-				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>.
+				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>. Data as of 2 February.
 			</p>
 			<p><button type="button" class="btn btn-primary btn-lg" data-toggle="collapse" data-target="#welcome" aria-expanded="true" aria-controls="welcome">Yaya</button></p>
 		</div>
@@ -161,129 +169,150 @@
 		$.getJSON("death.json", function(death) {
 			$("#loadLabel").text("Loading Categories...");
 			$.getJSON("areas.json", function(areas) {
-				// fn to handle filter changing / updating
-				var updateMap = function(filter, btn, cat, hash) {
-					// update selections
-					$(".dropdown-menu>li").removeClass("active");
-					if(btn) {
-						$(btn).parent().addClass("active");
-						if(cat)
-							$(btn).parents(".dropdown-submenu").addClass("active");
-					}
-					
-					// push url state
-					if(hash == null)
-						hash = btn;
-					if(hash != window.location.hash) {
-						window.history.pushState(hash, hash, window.location.pathname + hash);
-					}
-					
-					// update latlng
-					var latlngs = [];
-					for(var i = 0; i < death.length; i++) {
-						var d = death[i];
-						if(filter(d))
-							latlngs.push([d[1][1] - 0.5, d[1][0] - 0.5, 1]);
-					}
-					heatLayer.setLatLngs(latlngs);
-					heatLayer.setOptions({max: 0.0002 * latlngs.length});
-				}
-				
-				///////////////
-				// Setup all badges and filter choices
-				$("#f-all>.badge").text($(death).size());
-				
-				// update areas
-				var usedAreas = {};
-				$.each(areas.sort(), function(ai, aname) {
-					if(!usedAreas[aname]) {
-						var numInsts = 0;
-						for(var i = 0; i < death.length; i++) {
-							if(death[i][0] == aname)
-								numInsts++;
+				$.getJSON("jobs.json", function(jobs) {
+					// fn to handle filter changing / updating
+					var updateMap = function(filter, btn, cat, hash) {
+						// update selections
+						$(".dropdown-menu>li").removeClass("active");
+						if(btn) {
+							$(btn).parent().addClass("active");
+							if(cat)
+								$(btn).parents(".dropdown-submenu").addClass("active");
 						}
 						
-						if(numInsts > 0) {
-							$("#locList").append('<li><a id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
-							$("#f-loc-"+ai).on("click", function() {
-								updateMap(function(d) { return d[0] == aname }, "#f-loc-"+ai, true);
-							});
+						// push url state
+						if(hash == null)
+							hash = btn;
+						if(hash != window.location.hash) {
+							window.history.pushState(hash, hash, window.location.pathname + hash);
 						}
-						usedAreas[aname] = true;
+						
+						// update latlng
+						var latlngs = [];
+						for(var i = 0; i < death.length; i++) {
+							var d = death[i];
+							if(filter(d))
+								latlngs.push([d[1][1] - 0.5, d[1][0] - 0.5, 1]);
+						}
+						heatLayer.setLatLngs(latlngs);
+						heatLayer.setOptions({max: 0.0002 * latlngs.length});
 					}
-				});
-				// update genders & years
-				var numMales = 0
-				var numFemales = 0
-				var numYears = [0, 0, 0];
-				for(var i = 0; i < death.length; i++) {
-					numYears[death[i][2] - 2013]++;
 					
-					if(death[i][4] == 0)
-						numMales++;
-					else
-						numFemales++;
-				}
-				$("#f-male>.badge").text(numMales);
-				$("#f-female>.badge").text(numFemales);
-				for(var y = 0; y < numYears.length; y++) {
-					$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
-				}
-				
-				$("#loadBox").modal("hide");
-				
-				////////////////////				
-				// set functionality on maps
-				$("#f-all").on("click", function() {
-					updateMap(function() { return true; }, "#f-all", false, "");
-				});
-				
-				$("#f-male").on("click", function() {
-					updateMap(function(d) { return d[4] == 0; }, "#f-male", true);
-				});
-				$("#f-female").on("click", function() {
-					updateMap(function(d) { return d[4] == 1; }, "#f-female", true);
-				});
-				var searchFn = function() {
-					var name = $("#searchText").val().toLowerCase();
-					updateMap(function(d) { return d[3].toLowerCase().indexOf(name) > -1; }, "#searchBox", true, "#n="+name);
-				};
-				$("#searchBtn").on("click", searchFn);
-				$("#searchText").keypress(function(event) {
-					if(event.keyCode == 13)
-						searchFn();
-				});
-				$("#f-2013").on("click", function() {
-					updateMap(function(d) { return d[2] == 2013; }, "#f-2013", true);
-				});
-				$("#f-2014").on("click", function() {
-					updateMap(function(d) { return d[2] == 2014; }, "#f-2014", true);
-				});
-				$("#f-2015").on("click", function() {
-					updateMap(function(d) { return d[2] == 2015; }, "#f-2015", true);
-				});
-				
-				///////////////
-				// filter as requested
-				var setFilter = function(hash) {
-					if(hash != null && hash.length > 3) {
-						if(hash.substr(0, 3) == "#f-") {
-							$(hash).triggerHandler("click");
-						} else if(hash.substr(0, 3) == "#n=") {
-							$("#searchText").val(decodeURI(hash.substr(3)).toLowerCase());
-							searchFn();
+					///////////////
+					// Setup all badges and filter choices
+					$("#f-all>.badge").text($(death).size());
+					
+					// update areas
+					var usedAreas = {};
+					$.each(areas.sort(), function(ai, aname) {
+						if(!usedAreas[aname]) {
+							var numInsts = 0;
+							for(var i = 0; i < death.length; i++) {
+								if(death[i][0] == aname)
+									numInsts++;
+							}
+							
+							if(numInsts > 0) {
+								$("#locList").append('<li><a id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
+								$("#f-loc-"+ai).on("click", function() {
+									updateMap(function(d) { return d[0] == aname }, "#f-loc-"+ai, true);
+								});
+							}
+							usedAreas[aname] = true;
 						}
-					} else {
-						updateMap(function() { return true; }, "#f-all", false, "");
+					});
+					// update jobs
+					var usedJobs = {};
+					$.each(jobs.sort(), function(ji, jname) {
+						if(!usedJobs[jname]) {
+							var numInsts = 0;
+							for(var i = 0; i < death.length; i++) {
+								if(death[i][5] == jname)
+									numInsts++;
+							}
+							
+							if(numInsts > 0) {
+								$("#jobList").append('<li><a id="f-job-'+ji+'">'+jname+' <span class="badge">'+numInsts+'</span></a></li>');
+								$("#f-job-"+ji).on("click", function() {
+									updateMap(function(d) { return d[5] == jname }, "#f-job-"+ji, true);
+								});
+							}
+							usedJobs[jname] = true;
+						}
+					});
+					// update genders & years
+					var numMales = 0
+					var numFemales = 0
+					var numYears = [0, 0, 0];
+					for(var i = 0; i < death.length; i++) {
+						numYears[death[i][2] - 2013]++;
+						
+						if(death[i][4] == 0)
+							numMales++;
+						else
+							numFemales++;
 					}
-				}
-				// load from url initially
-				setFilter(window.location.hash);
-				// and also from pops
-				$(window).bind("popstate", function(event) {
-					setFilter(event.originalEvent.state);
+					$("#f-male>.badge").text(numMales);
+					$("#f-female>.badge").text(numFemales);
+					for(var y = 0; y < numYears.length; y++) {
+						$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
+					}
+					
+					$("#loadBox").modal("hide");
+					
+					////////////////////				
+					// set functionality on maps
+					$("#f-all").on("click", function() {
+						updateMap(function() { return true; }, "#f-all", false, "");
+					});
+					
+					$("#f-male").on("click", function() {
+						updateMap(function(d) { return d[4] == 0; }, "#f-male", true);
+					});
+					$("#f-female").on("click", function() {
+						updateMap(function(d) { return d[4] == 1; }, "#f-female", true);
+					});
+					var searchFn = function() {
+						var name = $("#searchText").val().toLowerCase();
+						updateMap(function(d) { return d[3].toLowerCase().indexOf(name) > -1; }, "#searchBox", true, "#n="+name);
+					};
+					$("#searchBtn").on("click", searchFn);
+					$("#searchText").keypress(function(event) {
+						if(event.keyCode == 13)
+							searchFn();
+					});
+					$("#f-2013").on("click", function() {
+						updateMap(function(d) { return d[2] == 2013; }, "#f-2013", true);
+					});
+					$("#f-2014").on("click", function() {
+						updateMap(function(d) { return d[2] == 2014; }, "#f-2014", true);
+					});
+					$("#f-2015").on("click", function() {
+						updateMap(function(d) { return d[2] == 2015; }, "#f-2015", true);
+					});
+					
+					///////////////
+					// filter as requested
+					var setFilter = function(hash) {
+						if(hash != null && hash.length > 3) {
+							if(hash.substr(0, 3) == "#f-") {
+								$(hash).triggerHandler("click");
+							} else if(hash.substr(0, 3) == "#n=") {
+								$("#searchText").val(decodeURI(hash.substr(3)).toLowerCase());
+								searchFn();
+							}
+						} else {
+							updateMap(function() { return true; }, "#f-all", false, "");
+						}
+					}
+					// load from url initially
+					setFilter(window.location.hash);
+					// and also from pops
+					$(window).bind("popstate", function(event) {
+						setFilter(event.originalEvent.state);
+					});
 				});
-			})
+			});
 		});
 	</script>
 </body>
