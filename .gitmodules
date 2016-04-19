@@ -1,3 +1,6 @@
 [submodule "work"]
 	path = work
 	url = https://github.com/Tastyfish/paradise-webapp-work.git
+[submodule "tiles"]
+	path = tiles
+	url = https://github.com/Tastyfish/paradise-webapp-tiles.git
