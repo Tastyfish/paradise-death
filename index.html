@@ -79,20 +79,20 @@
 			</div>
 		</div>
 	</nav>
-	
+
 	<div id="map"></div>
-	
+
 	<div class="container" role="main">
 		<div class="jumbotron collapse in" id="welcome" role="dialog">
 			<h1>Hihi.</h1>
 			<h3><img alt="hihi" src="images/hihi.png"/>&nbsp;See what parts of NSS Cyberiad are safe and what parts are not, yaya.</h3>
 			<p>
 				Choose filters at top for specifics.
-				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>. Data as of 20 February.
+				Is uses <a href="http://jquery.com">JQuery</a>, <a href="http://leafletjs.com">Leaflet</a>, & <a href="https://github.com/Leaflet/Leaflet.heat">Leaflet.heat</a>. Data as of 20 April 2016.
 			</p>
 			<p><button type="button" class="btn btn-primary btn-lg" data-toggle="collapse" data-target="#welcome" aria-expanded="true" aria-controls="welcome">Yaya</button></p>
 		</div>
-		
+
 		<div class="modal fade" id="loadBox" tabindex="-1" role="dialog" aria-labelledby="loadLabel">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
@@ -110,7 +110,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/leaflet.js"></script>
@@ -140,7 +140,7 @@
 		}
 		// update cookie
 		Cookies.set("visited", 1, {expires: 7, path: ""});
-		
+
 		// initialize map
 		var map = L.map("map", {
 			zoomControl: false,
@@ -160,7 +160,7 @@
 		var heatLayer = L.heatLayer([], {
 			radius: 10
 		}).addTo(map);
-		
+
 		// data columns are pod,coord,tod,name,gender
 		// initialize filters & load data
 		$("#loadBox").modal({
@@ -180,14 +180,14 @@
 							if(cat)
 								$(btn).parents(".dropdown-submenu").addClass("active");
 						}
-						
+
 						// push url state
 						if(hash == null)
 							hash = btn;
 						if(hash != window.location.hash) {
 							window.history.pushState(hash, hash, window.location.pathname + hash);
 						}
-						
+
 						// update latlng
 						var latlngs = [];
 						for(var i = 0; i < death.length; i++) {
@@ -198,11 +198,11 @@
 						heatLayer.setLatLngs(latlngs);
 						heatLayer.setOptions({max: 0.0002 * latlngs.length});
 					}
-					
+
 					///////////////
 					// Setup all badges and filter choices
 					$("#f-all>.badge").text($(death).size());
-					
+
 					// update areas
 					var usedAreas = {};
 					$.each(areas.sort(), function(ai, aname) {
@@ -212,7 +212,7 @@
 								if(death[i][0] == aname)
 									numInsts++;
 							}
-							
+
 							if(numInsts > 0) {
 								$("#locList").append('<li><a id="f-loc-'+ai+'">'+aname+' <span class="badge">'+numInsts+'</span></a></li>');
 								$("#f-loc-"+ai).on("click", function() {
@@ -231,7 +231,7 @@
 								if(death[i][5] == jname)
 									numInsts++;
 							}
-							
+
 							if(numInsts > 0) {
 								$("#jobList").append('<li><a id="f-job-'+ji+'">'+jname+' <span class="badge">'+numInsts+'</span></a></li>');
 								$("#f-job-"+ji).on("click", function() {
@@ -247,7 +247,7 @@
 					var numYears = [0, 0, 0, 0];
 					for(var i = 0; i < death.length; i++) {
 						numYears[death[i][2] - 2013]++;
-						
+
 						if(death[i][4] == 0)
 							numMales++;
 						else
@@ -258,15 +258,15 @@
 					for(var y = 0; y < numYears.length; y++) {
 						$("#f-"+(2013 + y).toString()+">.badge").text(numYears[y]);
 					}
-					
+
 					$("#loadBox").modal("hide");
-					
-					////////////////////				
+
+					////////////////////
 					// set functionality on maps
 					$("#f-all").on("click", function() {
 						updateMap(function() { return true; }, "#f-all", false, "");
 					});
-					
+
 					$("#f-male").on("click", function() {
 						updateMap(function(d) { return d[4] == 0; }, "#f-male", true);
 					});
@@ -294,7 +294,7 @@
 					$("#f-2016").on("click", function() {
 						updateMap(function(d) { return d[2] == 2016; }, "#f-2016", true);
 					});
-					
+
 					///////////////
 					// filter as requested
 					var setFilter = function(hash) {
